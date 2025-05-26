@@ -1,0 +1,7 @@
+log:
+  path: D:\newgate
+  level: info
+proxy:
+  serverPort: 8080
+  targetURI: http://192.168.1.250
+  code: 111111
