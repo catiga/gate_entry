@@ -38,6 +38,10 @@ func extractUriParams(q url.Values) map[string]string {
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path == "/favicon.ico" {
+		http.NotFound(w, r)
+		return
+	}
 	query := r.URL.RawQuery
 
 	logger.Printf("[REQ] Method: %s | URI: %s | [QUERY] %s", r.Method, r.RequestURI, query)
@@ -93,7 +97,12 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	logger.Printf("[RESP_BODY] %s", string(respBody))
+	respBodyStr := string(respBody)
+	if strings.Contains(respBodyStr, "<html") || strings.Contains(respBodyStr, "<!DOCTYPE html") || strings.Contains(respBodyStr, "<HTML") {
+		logger.Printf("[RESP_BODY] [SKIPPED: HTML response]")
+	} else {
+		logger.Printf("[RESP_BODY] %s", respBodyStr)
+	}
 
 	for k, v := range resp.Header {
 		for _, vv := range v {
