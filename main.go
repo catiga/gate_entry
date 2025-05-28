@@ -17,8 +17,28 @@ import (
 var logger *log.Logger
 var config = conf.Get()
 
+// func initLogger() {
+// 	logFile := filepath.Join(config.Log.Path, "proxy.log")
+// 	f, err := os.OpenFile(logFile, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
+// 	if err != nil {
+// 		log.Fatalf("Cannot write to log file: %v", err)
+// 	}
+// 	logger = log.New(io.MultiWriter(os.Stdout, f), "", log.LstdFlags)
+// 	logger.Printf("Log initialized at %s [%s]", logFile, config.Log.Level)
+// }
+
 func initLogger() {
-	logFile := filepath.Join(config.Log.Path, "proxy.log")
+	// 获取当前日期
+	today := time.Now().Format("2006-01-02") // 日期格式为 YYYY-MM-DD
+	logDir := filepath.Join(config.Log.Path, "log")
+
+	// 确保目录存在
+	err := os.MkdirAll(logDir, 0755)
+	if err != nil {
+		log.Fatalf("Failed to create log directory: %v", err)
+	}
+
+	logFile := filepath.Join(logDir, "proxy-"+today+".log")
 	f, err := os.OpenFile(logFile, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
 	if err != nil {
 		log.Fatalf("Cannot write to log file: %v", err)
