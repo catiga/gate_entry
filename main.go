@@ -81,13 +81,14 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	paramMap := extractUriParams(r.URL.Query())
-	cmd := paramMap["a"]
-	scanType := paramMap["scanType"]
-	scanContent := paramMap["scanContent"]
+	qr_code := paramMap["qr_code"]
+	_ = paramMap["format"]
+	_ = paramMap["pid"]
+	_ = paramMap["cid"]
 
-	if cmd == "checkticket" && scanType == "2" {
-		if strings.HasPrefix(scanContent, "so-") {
-			targetURL = "https://qrcinema.cn/general_api/api/gate/check?modify_status=modify&qk=" + scanContent
+	if strings.HasPrefix(r.RequestURI, "/ticket/info-by-qrcode") {
+		if strings.HasPrefix(qr_code, "so-") {
+			targetURL = "https://qrcinema.cn/general_api/api/gate/check?modify_status=modify&qk=" + qr_code
 		}
 	}
 
@@ -129,10 +130,14 @@ func handler(w http.ResponseWriter, r *http.Request) {
 			w.Header().Add(k, vv)
 		}
 	}
+
+	w.Header().Set("Content-Length", strconv.Itoa(len(respBody)))
+	w.Header().Set("Content-Type", resp.Header.Get("Content-Type"))
 	w.WriteHeader(resp.StatusCode)
 	w.Write(respBody)
 
-	logger.Printf("[RESP] → %s (%d)", targetURL, resp.StatusCode)
+	logger.Printf("[RESP] Status: %d | Headers: %v | Body: %s", resp.StatusCode, resp.Header, respBodyStr)
+	logger.Println()
 }
 
 func main() {
